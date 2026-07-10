@@ -59,8 +59,9 @@ after an interruption skips work that's already done.
 - `resourcetrade_metals_2000_2024.xlsx` — one workbook with 6 sheets, one per
   `{country} ({export|import})` combination
 
-None of the generated data files are committed to this repo (see `.gitignore`) —
-run the script to regenerate them locally.
+Generated data files are otherwise not committed to this repo (see `.gitignore`) —
+run the script to regenerate them locally. An example of the `.xlsx` output is
+checked in at [`examples/resourcetrade_metals_2000_2024.xlsx`](examples/resourcetrade_metals_2000_2024.xlsx).
 
 ## Configuration
 
