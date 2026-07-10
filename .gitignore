@@ -1,0 +1,9 @@
+# generated data outputs (large, regenerate via fetch_resourcetrade_data.py)
+*.csv
+*.xlsx
+~$*.xlsx
+raw_downloads/
+
+# python
+__pycache__/
+*.pyc
