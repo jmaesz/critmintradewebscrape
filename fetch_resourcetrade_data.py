@@ -193,6 +193,14 @@ def main():
         imports.to_csv("resourcetrade_metals_2000_2024_imports.csv", index=False)
         print(f"Saved exports -> resourcetrade_metals_2000_2024_exports.csv ({len(exports)} rows)")
         print(f"Saved imports -> resourcetrade_metals_2000_2024_imports.csv ({len(imports)} rows)")
+
+        xlsx_path = "resourcetrade_metals_2000_2024.xlsx"
+        with pd.ExcelWriter(xlsx_path, engine="openpyxl") as writer:
+            for name in COUNTRIES:
+                for direction, label in (("export_to_world", "export"), ("import_from_world", "import")):
+                    sheet = combined[(combined["_country"] == name) & (combined["_direction"] == direction)]
+                    sheet.to_excel(writer, sheet_name=f"{name} ({label})", index=False)
+        print(f"Saved workbook -> {xlsx_path} (one sheet per country x direction)")
     else:
         print("\nNo data was successfully retrieved.")
 
