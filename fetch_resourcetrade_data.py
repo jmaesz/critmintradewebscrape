@@ -158,14 +158,19 @@ def parse_xlsx(local_path, country_name, direction, category_name):
 # MAIN LOOP
 # ---------------------------------------------------------------------------
 
-def main():
+def run_batch(countries, out_prefix):
+    """
+    Fetches every (country x direction x subcategory x year-checkpoint)
+    combination in `countries` and writes combined/exports/imports CSVs
+    plus a multi-sheet workbook, all named "{out_prefix}...".
+    """
     all_frames = []
     errors = []
 
-    total = len(COUNTRIES) * 2 * len(CATEGORIES) * len(list(YEAR_CHECKPOINTS))
+    total = len(countries) * 2 * len(CATEGORIES) * len(list(YEAR_CHECKPOINTS))
     done = 0
 
-    for name, code in COUNTRIES.items():
+    for name, code in countries.items():
         for direction in ("exporter", "importer"):
             for cat_id, cat_name in CATEGORIES.items():
                 for year in YEAR_CHECKPOINTS:
@@ -183,20 +188,20 @@ def main():
 
     if all_frames:
         combined = pd.concat(all_frames, ignore_index=True)
-        out_path = "resourcetrade_metals_2000_2024.csv"
+        out_path = f"{out_prefix}.csv"
         combined.to_csv(out_path, index=False)
         print(f"\nSaved combined dataset -> {out_path} ({len(combined)} rows)")
 
         exports = combined[combined["_direction"] == "export_to_world"]
         imports = combined[combined["_direction"] == "import_from_world"]
-        exports.to_csv("resourcetrade_metals_2000_2024_exports.csv", index=False)
-        imports.to_csv("resourcetrade_metals_2000_2024_imports.csv", index=False)
-        print(f"Saved exports -> resourcetrade_metals_2000_2024_exports.csv ({len(exports)} rows)")
-        print(f"Saved imports -> resourcetrade_metals_2000_2024_imports.csv ({len(imports)} rows)")
+        exports.to_csv(f"{out_prefix}_exports.csv", index=False)
+        imports.to_csv(f"{out_prefix}_imports.csv", index=False)
+        print(f"Saved exports -> {out_prefix}_exports.csv ({len(exports)} rows)")
+        print(f"Saved imports -> {out_prefix}_imports.csv ({len(imports)} rows)")
 
-        xlsx_path = "resourcetrade_metals_2000_2024.xlsx"
+        xlsx_path = f"{out_prefix}.xlsx"
         with pd.ExcelWriter(xlsx_path, engine="openpyxl") as writer:
-            for name in COUNTRIES:
+            for name in countries:
                 for direction, label in (("export_to_world", "export"), ("import_from_world", "import")):
                     sheet = combined[(combined["_country"] == name) & (combined["_direction"] == direction)]
                     sheet.to_excel(writer, sheet_name=f"{name} ({label})", index=False)
@@ -208,6 +213,10 @@ def main():
         print("\nThe following combinations failed and may need re-running:")
         for e in errors:
             print(" -", e)
+
+
+def main():
+    run_batch(COUNTRIES, "resourcetrade_metals_2000_2024")
 
 
 if __name__ == "__main__":
